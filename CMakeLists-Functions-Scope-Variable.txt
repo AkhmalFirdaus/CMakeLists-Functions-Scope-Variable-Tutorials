@@ -1,0 +1,588 @@
+﻿# CMakeList.txt : Top-level CMake project file, do global configuration
+# and include sub-projects here.
+#
+cmake_minimum_required (VERSION 3.14.7) #mal change from default VERSION 3.8 to 3.14.7
+project ("MalProject")
+
+
+######################   EXAMPLE 1   ######################
+
+# set_property(
+# 	GLOBAL
+# 	PROPERTY FOO
+# 	1 
+# 	2
+# 	3 
+# 	)
+
+# get_cmake_property(foo_value FOO)
+# message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+######################   EXAMPLE 2   ######################
+
+#set(my_list 1 2 3)			#This will assign value 1,2,3 into my_list
+#set_property(
+#	GLOBAL					#GLOBAL can also be "GLOBAL", we still get the same result. However, if we change to DIRECTORY, we will get result NOT FOUND as the target is DIRECTORY instead of GLOBAL
+#	PROPERTY FOO
+#	"${my_list}"			#So, we can directly call the list here
+#	)
+														# GLOBAL: 1st Argument; PROPERTY FOO: 2nd Arg; "${my_list}": 3rd Arg
+#get_cmake_property(foo_value FOO)
+#message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+######################   EXAMPLE 3   ######################
+
+#set(my_list 1 2 3)			
+#set(target GLOBAL)		#We can also target the GLOBAL into 'target'
+#set_property(
+#	"${target}"			#Then, we call our target here
+#	PROPERTY FOO
+#	"${my_list}"
+#	)
+
+#get_cmake_property(foo_value FOO)
+#message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+######################   EXAMPLE 4   ######################
+
+# set(my_list 1 2 3)			
+# set(target GLOBAL)		#HERE, we can change GLOBAL to DIRECTORY as in Example 5
+# set_property(
+# 	"${target}"			
+# 	PROPERTY FOO
+# 	"${my_list}"
+# 	)
+
+# get_property(foo_value "${target}" PROPERTY FOO)		#AND DIRECTORY will be assigned here.
+# message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+######################   EXAMPLE 5   ######################
+
+# set(my_list 1 2 3)			
+# set(target DIRECTORY)		#HERE, we have changed GLOBAL to DIRECTORY. Hence, DIRECTORY are assigned to target.
+# set_property(
+# 	"${target}"			
+# 	PROPERTY FOO
+# 	"${my_list}"
+# 	)
+
+# get_property(foo_value "${target}" PROPERTY FOO)		#AND target (DIRECTORY) will be called here.
+# message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+######################   EXAMPLE 6   ######################
+
+# set(my_list 1 2 3)			
+# set(target DIRECTORY "${PROJECT_SOURCE_DIR}")		#HERE, we can set the DIRECTORY as a KEY which contain the VALUE: PROJECT_SOURCE_DIR
+# set_property(
+# 	"${target}"			#HERE, if we "Quoted" target, CMake will take "${PROJECT_SOURCE_DIR}" as the First Argument
+# 	PROPERTY FOO
+# 	"${my_list}"
+# 	)
+
+# get_property(foo_value "${target}" PROPERTY FOO)		#Hence, we'll get ERROR as the target is not the DIRECTORY but "${PROJECT_SOURCE_DIR}"
+# message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+######################   EXAMPLE 6.5   ######################
+
+# set(my_list 1 2 3)			
+# set(target DIRECTORY "${PROJECT_SOURCE_DIR}")		
+# set_property(
+# 	DIRECTORY "${PROJECT_SOURCE_DIR}"			#IF WE WRITE LIKE THIS, we have actually 2 Arguments, instead of we only need 1 Argument
+# 	PROPERTY FOO
+# 	"${my_list}"
+# 	)
+
+# get_property(foo_value ${target} PROPERTY FOO)		
+# message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+######################   EXAMPLE 7   ######################
+
+# set(my_list 1 2 3)			
+# set(target DIRECTORY "${PROJECT_SOURCE_DIR}")		#HERE, we can set the DIRECTORY as a KEY which contain the VALUE: PROJECT_SOURCE_DIR
+# set_property(			#The CORRECT Way is to call the 1st Single Argument, 
+# 	${target}			#HERE, ${target} need to be "Unquoted", so that CMake will execute the 1st Single Argument of the DIRECTORY Argument
+# 	PROPERTY FOO
+# 	"${my_list}"
+# 	)
+
+# get_property(foo_value ${target} PROPERTY FOO)		#AND "${PROJECT_SOURCE_DIR}" will be assigned here.
+# message(STATUS "Value of FOO is ${foo_value}")
+
+### OUTPUT
+# Value of FOO is 1;2;3
+
+
+############################################################ STUDYING SET Behaviour
+
+# set(APPLICATION_ICON_NAME Mahmud)
+# message(STATUS "App Name is ${APPLICATION_ICON_NAME}")
+
+###################################################################################
+
+
+######################   FUNCTION.   ######################
+
+# Now we are entering the Phase of Function
+
+# PART 1.1 (Intro)
+
+# # Let's say,
+# function(do_cmake_good)
+# endfunction()
+# #OUTPUT: Empty. As we haven't set any input/output of our Function
+
+
+
+# PART 1.2 (Calling function)
+
+# If we set our function as follow, then we will get an OUTPUT
+# function(do_cmake_good)
+# 	message(STATUS "You called the function!")
+# endfunction()
+
+# do_cmake_good()			#HERE we called the functiom do_cmake_good which gives output message, "You called the function!"
+
+# OUTPUT: You called the function!
+
+
+
+# PART 1.3 (Adding Arguments into function named)
+
+# function(do_cmake_good first_arg)								# To Set the Argument into our function, we can Declare HERE
+# 	message(STATUS "You called the function! ${first_arg}:")		#HERE, we demand an argument to be inserted into our function
+# endfunction()
+
+# do_cmake_good()			# Expected to get ERROR as we haven't put any Argument yet
+
+# OUTPUT: ERROR!
+
+
+
+# PART 1.4 (Adding Arguments into function named)
+
+# function(do_cmake_good first_arg)
+# 	message(STATUS "You called the function with argument: ${first_arg}!")
+# endfunction()
+
+# do_cmake_good(1)			#WE add Arg into our Function
+# do_cmake_good(2)
+# do_cmake_good(W)			#WE can put anything, any value either  Char, String or Int as function Input Argument
+# do_cmake_good(Okay)			#TRY it out! ^_^
+
+
+# OUTPUT:
+# [cmake] -- You called the function with argument: 1!
+# [cmake] -- You called the function with argument: 2!
+# [cmake] -- You called the function with argument: W!
+# [cmake] -- You called the function with argument: Okay!
+# [cmake] -- You called the function with argument: 1!
+
+
+
+# PART 1.5 (Passing Multiple Arguments into function named)
+
+# function(do_cmake_good first_arg)
+# 	message(STATUS "You called the function with argument: ${first_arg}!")
+# endfunction()
+
+# do_cmake_good(1 2 3 4)			#WE Pass Multiple Arg into our Function
+# 								#TRY it out! ^_^
+
+# OUTPUT: 
+# [cmake] -- You called the function with argument: 1!   #This is due to only 1 is assigned to first_arg, while 2 3 4 hasn't any place to stay
+
+
+
+# So, in order to get them called, we need to assigned 2 3 4 into their respective place
+
+
+
+# PART 1.6 (Passing Multiple Arguments into function named)
+
+# function(do_cmake_good first_arg second third fourth)
+# 	message(STATUS "You called the function with argument: ${first_arg}!")
+# 	message(STATUS "You called the function with second arg: ${second}!")
+# 	message(STATUS "You called the function with third arg: ${third}!")
+# 	message(STATUS "You called the function with fourth arg: ${fourth}!")
+# endfunction()
+
+# do_cmake_good(1 2 3 4)			#WE Pass Multiple Arg into our Function
+									#TRY it out! ^_^
+
+# # OUTPUT: 
+# [cmake] -- You called the function with argument: 1!
+# [cmake] -- You called the function with second arg: 2!
+# [cmake] -- You called the function with third arg: 3!
+# [cmake] -- You called the function with fourth arg: 4!
+
+
+# GOOD. Now, say we don't know how many arguments in our function, a very attic function.
+# To do this, we can Pass the List Argument using loop as follows
+
+
+# PART 1.7 (Passing Multiple Arguments as List using Loop into function named)
+
+# function(do_cmake_good)
+# 	foreach(arg IN LISTS ARGN)			# LIST must be called as LISTS, ARGUMENT as ARGN or ARGV.
+# 		message(STATUS "Got argument: ${arg}!")
+# 	endforeach()
+# endfunction()
+
+# do_cmake_good(1 2 3 4 5 6 7 8)
+
+# # OUTPUT:
+# [cmake] -- Got argument: 1!
+# [cmake] -- Got argument: 2!
+# [cmake] -- Got argument: 3!
+# [cmake] -- Got argument: 4!
+# [cmake] -- Got argument: 5!
+# [cmake] -- Got argument: 6!
+# [cmake] -- Got argument: 7!
+# [cmake] -- Got argument: 8!
+
+
+# PART 1.8 (Passing Multiple Arguments as ARGN and ARGV Lists using Loop into function named)
+
+# function(do_cmake_good)
+# 	foreach(arg IN LISTS ARGN)			# Calling ARGUMENT as ARGN
+# 		message(STATUS "Got ARGN argument: ${arg}!")
+# 	endforeach()
+# 	foreach(arg IN LISTS ARGV)			# Calling ARGUMENT as ARGV
+# 		message(STATUS "Got ARGV argument: ${arg}!")
+# 	endforeach()
+# endfunction()
+
+# do_cmake_good(1 2 3 4 5 6 7 8)
+
+# # OUTPUT:
+# [cmake] -- Got ARGN argument: 1!
+# [cmake] -- Got ARGN argument: 2!
+# [cmake] -- Got ARGN argument: 3!
+# [cmake] -- Got ARGN argument: 4!
+# [cmake] -- Got ARGN argument: 5!
+# [cmake] -- Got ARGN argument: 6!
+# [cmake] -- Got ARGN argument: 7!
+# [cmake] -- Got ARGN argument: 8!
+# [cmake] -- Got ARGV argument: 1!
+# [cmake] -- Got ARGV argument: 2!
+# [cmake] -- Got ARGV argument: 3!
+# [cmake] -- Got ARGV argument: 4!
+# [cmake] -- Got ARGV argument: 5!
+# [cmake] -- Got ARGV argument: 6!
+# [cmake] -- Got ARGV argument: 7!
+# [cmake] -- Got ARGV argument: 8!
+
+
+# See, we got pretty much the same.
+# So, what is the difference?
+
+
+# PART 1.9 (ARGN vs ARGV : Adding some named arguments in the function)
+
+# function(do_cmake_good first second third)
+# 	foreach(arg IN LISTS ARGN)			# Calling ARGUMENT as ARGN
+# 		message(STATUS "Got ARGN argument: ${arg}!")
+# 	endforeach()
+# 	foreach(arg IN LISTS ARGV)			# Calling ARGUMENT as ARGV
+# 		message(STATUS "Got ARGV argument: ${arg}!")
+# 	endforeach()
+# endfunction()
+
+# do_cmake_good(1 2 3 4 5 6 7 8)
+
+
+# OUTPUT:
+# [cmake] -- Got ARGN argument: 1!		# ARGN 1
+# [cmake] -- Got ARGN argument: 2!
+# [cmake] -- Got ARGN argument: 3!
+# [cmake] -- Got ARGN argument: 4!		...
+# [cmake] -- Got ARGN argument: 5!
+# [cmake] -- Got ARGN argument: 6!
+# [cmake] -- Got ARGN argument: 7!
+# [cmake] -- Got ARGN argument: 8!		# ARGN 8
+# [cmake] -- Got ARGV argument: 1!		# ARGV 1
+# [cmake] -- Got ARGV argument: 2!
+# [cmake] -- Got ARGV argument: 3!
+# [cmake] -- Got ARGV argument: 4!		...
+# [cmake] -- Got ARGV argument: 5!
+# [cmake] -- Got ARGV argument: 6!
+# [cmake] -- Got ARGV argument: 7!
+# [cmake] -- Got ARGV argument: 8!		# ARGV 8
+# [cmake] -- Got ARGN argument: 4!		# ARGN 4		!!
+# [cmake] -- Got ARGN argument: 5!
+# [cmake] -- Got ARGN argument: 6!		...
+# [cmake] -- Got ARGN argument: 7!
+# [cmake] -- Got ARGN argument: 8!		# ARGN 8
+# [cmake] -- Got ARGV argument: 1!		# ARGV 1		!!
+# [cmake] -- Got ARGV argument: 2!
+# [cmake] -- Got ARGV argument: 3!
+# [cmake] -- Got ARGV argument: 4!		...
+# [cmake] -- Got ARGV argument: 5!
+# [cmake] -- Got ARGV argument: 6!
+# [cmake] -- Got ARGV argument: 7!
+# [cmake] -- Got ARGV argument: 8!		# ARGV 8
+
+
+
+#######################  SCOPE  ###########################
+
+
+# PART 2.1 (Scope Intro)
+
+# function(do_cmake_good)
+# 	message(STATUS "Value of global var is: ${MY_GLOBAL_VAR}")
+# endfunction()
+
+# do_cmake_good()
+
+# From this Code, we will get empty output, as the variable MY_GLOBA_VAR is not defined.
+
+# OUTPUT:
+#[cmake] -- Value of global var is: 
+
+
+# So, we will define our Global Variable as below
+
+
+# PART 2.2 (Scope Placements and Effects)
+# Placing Scope Before Calling
+
+# set(MY_GLOBAL_VAR Meow)
+
+# function(do_cmake_good)
+# 	message(STATUS "Value of global var is: ${MY_GLOBAL_VAR}")
+# endfunction()
+
+# do_cmake_good()
+
+# # OUTPUT:
+# # [cmake] -- Value of global var is: Meow
+
+
+
+# Placing Scope After Calling
+
+# function(do_cmake_good)
+# 	message(STATUS "Value of global var is: ${MY_GLOBAL_VAR}")
+# endfunction()
+
+# set(MY_GLOBAL_VAR Meow)
+
+# do_cmake_good()
+
+# OUTPUT:
+# [cmake] -- Value of global var is: Meow
+
+
+
+# Placing Scope Inside Function
+
+# function(do_cmake_good)
+# 	message(STATUS "Value of global var is: ${MY_GLOBAL_VAR}")		#Initially, this line retrieve Global Var from the Set Scope outside the function
+# 	set(MY_GLOBAL_VAR 12)
+# 	message(STATUS "Value of global var is now: ${MY_GLOBAL_VAR}")		#Then, this line call the New Global Var as 12
+# endfunction()
+
+
+# do_cmake_good()
+
+# OUTPUT:
+# [cmake] -- Value of global var is: 
+# [cmake] -- Value of global var is now: 12
+
+
+
+# Placing Scope Inside Function and After Function Called
+
+# function(do_cmake_good)
+# 	message(STATUS "Value of global var is: ${MY_GLOBAL_VAR}")		#CMake duplicate the Scope Value from the Global Set
+# 	set(MY_GLOBAL_VAR 12)
+# 	message(STATUS "Value of global var is now: ${MY_GLOBAL_VAR}")	
+# endfunction()															#When the function is end, it Pops the variable Scope off, restoring all the previous values of every variable
+
+# set(MY_GLOBAL_VAR Meow)
+
+# do_cmake_good()
+
+# message(STATUS "Value of global var is now, after call: ${MY_GLOBAL_VAR}")		#Thus, this Line call the Variable as the Initial Set Scope, Meow 
+
+# OUTPUT:
+# [cmake] -- Value of global var is: Meow
+# [cmake] -- Value of global var is now: 12
+# [cmake] -- Value of global var is now, after call: Meow
+
+
+# This means that, setting Variable within a function does not affect the Parent Scope
+# Unless, if we explicitly requested as,
+
+
+
+# Setting Parent Scope Inside a Function
+
+# function(do_cmake_good)
+# 	message(STATUS "Value of global var is: ${MY_GLOBAL_VAR}")		#CMake duplicate the Scope Value from the Global Set, Meow
+# 	set(MY_GLOBAL_VAR 12 PARENT_SCOPE) 			#New PARENT_SCOPE Defined. Resetting the Scope Value to a NEW PARENT_SCOPE
+# 	message(STATUS "Value of global var is now: ${MY_GLOBAL_VAR}")	#Calling back the Scope Value from the Global Set, Meow
+# endfunction()															 
+
+# set(MY_GLOBAL_VAR Meow)
+
+# do_cmake_good()
+
+# message(STATUS "Value of global var is now, after call: ${MY_GLOBAL_VAR}")		#New PARENT_SCOPE value is returned here 
+
+# # OUTPUT:
+# [cmake] -- Value of global var is: Meow
+# [cmake] -- Value of global var is now: Meow
+# [cmake] -- Value of global var is now, after call: 12
+
+
+
+# Note: Line 452: set(MY_GLOBAL_VAR 12 PARENT_SCOPE), didn't change the Scope Value within our Function. 
+# It only changed the Scope Value once, we have returned to the outside of our function.
+# Inside the Function, it only change the PARENT_SCOPE value, not our Current Scope Value.
+# Understand?
+# Question: Why would you want to use the PARENT_SCOPE parameter?
+# Ans: Weel, it is the only way to easily return values to your caller.
+
+
+
+#########################  PART 2.3  ##########################
+
+# Derefference 2.3.1
+
+# function(increment var)
+# 	message(STATUS "Value before increment is: ${var}")
+# endfunction()
+
+# set(value 14)
+# increment(value)
+
+# OUTPUT:
+# [cmake] -- Value before increment is: value
+
+
+# Derefference 2.3.2
+
+# function(increment var)
+# 	message(STATUS "Value before increment is: ${${var}}")			# HERE, we Derefferencing the variable, var which return value, where value gives 14
+# endfunction()
+
+# set(value 14)
+# increment(value)
+
+# OUTPUT:
+# [cmake] -- Value before increment is: 14
+
+
+# Dereference 2.3.3 (Let's Do some maths)
+# Here, we are going to set the Local Variable, named new_value to the value of the variable, named var + 1
+
+# function(increment var)
+# 	message(STATUS "Value before increment is: ${${var}}")
+# 	math(EXPR new_value "${${var}} + 1")						# EXPR: Expression, new_value is the local variable, and next to it is the expression
+# 	message(STATUS "Value after increment is ${new_value}")
+# endfunction()
+
+# set(value 14)
+# increment(value)
+
+# # OUTPUT:
+# [cmake] -- Value before increment is: 14
+# [cmake] -- Value after increment is 15
+
+
+# Dereference 2.3.4 (Let's Do some math-gic)
+
+# function(increment var)
+# 	math(EXPR new_value "${${var}} + 1")			
+# 	set("${var}" "${new_value}" PARENT_SCOPE)		#HERE, we set our value of var with value of new_value 
+# endfunction()
+
+# set(value 14)
+# increment(value)
+# message(STATUS "Final value is ${value}")
+
+# OUTPUT:
+# [cmake] -- Final value is 15
+
+
+# Dereference 2.3.5 (Calling math-gic several times)
+
+# function(increment var)
+# 	math(EXPR new_value "${${var}} + 1")			
+# 	set("${var}" "${new_value}" PARENT_SCOPE)		
+# endfunction()
+
+# set(value 14)
+# increment(value)			# LET'S call this function several times
+# increment(value)
+# increment(value)
+# increment(value)
+# increment(value)
+# increment(value)
+# increment(value)
+# message(STATUS "Final value is ${value}")  # ..and we got our Final value = 21
+
+# OUTPUT:
+# [cmake] -- Final value is 15
+
+
+# Dereference 2.3.6 (Adding Sum Function)
+
+function(increment var)
+	math(EXPR new_value "${${var}} + 1")			
+	set("${var}" "${new_value}" PARENT_SCOPE)		
+endfunction()
+
+function(sum out a b)		# out is the name that we will set as our PARENT_SCOPE
+	math(EXPR ret "${a} + ${b}")	# assign a+b to ret
+	set("${out}" "${ret}" PARENT_SCOPE)		# set out as PARENT_SCOPE from the value by ret
+endfunction()
+
+sum(value 3 5)
+message(STATUS "Final value is ${value}")  # ..and we got our Final value = 21
+
+# OUTPUT:
+# [cmake] -- Final value is 8
+
+
+
+
+
+##### Completed the course for CMAKE Functions, Scope, and Variable Derefference
+########################################################### continue in CMake Parse Arguments
+
+
+# Include sub-projects.
+# add_subdirectory ("MalProject")
+
+#Tutorial source: https://www.youtube.com/watch?v=cOQy8l68Yyk
